@@ -6,7 +6,7 @@ function registerLayer() {
     let mergeFunc = new Version().onOrAfter("0.8.6") ? foundry.utils.mergeObject : mergeObject;
 
     const layers = mergeFunc(Canvas.layers, {
-        effectsFramework: EffectsLayer
+        effectsframework: EffectsLayer
     });
 
     Object.defineProperty(Canvas, 'layers', {

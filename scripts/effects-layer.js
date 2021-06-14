@@ -10,7 +10,7 @@ export class EffectsLayer extends CanvasLayer {
         this.mergeFunc = version ? foundry.utils.mergeObject : mergeObject;
         this.hasProperty = version ? foundry.utils.hasProperty : hasProperty;
         // Listen to the socket
-        game.socket.on("module.effectsFramework", (data) => {
+        game.socket.on("module.effectsframework", (data) => {
             this.playEffect(data);
         });
     }
@@ -138,9 +138,9 @@ export class EffectsLayer extends CanvasLayer {
         effectData.distance = ray.distance;
         effectData.rotation = ray.angle;
         // And to other clients
-        game.socket.emit('module.effectsFramework', effectData);
+        game.socket.emit('module.effectsframework', effectData);
         // Throw effect locally
-        return canvas.EffectsLayer.playEffect(effectData);
+        return canvas.effectsframework.playEffect(effectData);
 
     }
 
