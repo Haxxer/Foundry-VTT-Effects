@@ -1,38 +1,38 @@
 import { EffectsCanvasAnimation } from "./canvas-animation.js"
-//import { easeFunctions } from "../module/ease.js";
+import { easeFunctions } from "./ease.js";
+import { Version } from "./version.js"
 
-export class EffectsLayer extends PlaceablesLayer {
+export class EffectsLayer extends CanvasLayer {
 
     constructor() {
         super();
-
+        let version = new Version().onOrAfter("0.8.6");
+        this.mergeFunc = version ? foundry.utils.mergeObject : mergeObject;
+        this.hasProperty = version ? foundry.utils.hasProperty : hasProperty;
         // Listen to the socket
-        game.socket.on("module.effects", (data) => {
+        game.socket.on("module.effectsFramework", (data) => {
             this.playEffect(data);
         });
     }
 
     static get layerOptions() {
-        let level;
-        if (game.settings.get("effects", "animateLayer")) {
-            level = 250;
-        } else {
-            level = 199;
+
+        let version = new Version().onOrAfter("0.8.6");
+        let mergeFunc = version ? foundry.utils.mergeObject : mergeObject;
+
+        let obj = {
+            canDragCreate: false,
+            zIndex: 180
         }
-        if (game.data.version === "0.7.9" || game.data.version === "0.7.10") {
-            return mergeObject(super.layerOptions, {
-                objectClass: Note,
-                sheetClass: NoteConfig,
-                canDragCreate: false,
-                zIndex: 180
-            });
-        } else {
-            return foundry.utils.mergeObject(super.layerOptions, {
-                name: "effects",
-                canDragCreate: false,
-                zIndex: level
-            });
+
+        if(version){
+            obj.name = "effectsframework"
+        }else{
+            obj.objectClass = Note
+            obj.sheetClass = NoteConfig
         }
+
+        return mergeFunc(super.layerOptions, obj);
     }
 
     playEffect(data) {
@@ -40,25 +40,14 @@ export class EffectsLayer extends PlaceablesLayer {
         return new Promise((resolve, reject) => {
 
             // Set default values
-            if (game.data.version === "0.7.9" || game.data.version === "0.7.10") {
-                data = mergeObject({
-                    anchor: { x: 0.5, y: 0.5 },
-                    rotation: 0,
-                    scale: { x: 1.0, y: 1.0 },
-                    position: { x: 0, y: 0 },
-                    playbackRate: 1.0,
-                    ease: "Linear"
-                }, data);
-            } else {
-                data = foundry.utils.mergeObject({
-                    anchor: { x: 0.5, y: 0.5 },
-                    rotation: 0,
-                    scale: { x: 1.0, y: 1.0 },
-                    position: { x: 0, y: 0 },
-                    playbackRate: 1.0,
-                    ease: "Linear"
-                }, data);
-            }
+            data = this.mergeFunc({
+                anchor: { x: 0.5, y: 0.5 },
+                rotation: 0,
+                scale: { x: 1.0, y: 1.0 },
+                position: { x: 0, y: 0 },
+                playbackRate: 1.0,
+                ease: "Linear"
+            }, data);
 
             // Create video
             const video = document.createElement("video");
@@ -83,9 +72,9 @@ export class EffectsLayer extends PlaceablesLayer {
                 if ((!data.speed || data.speed === 0) && !data.distance) {
                     return;
                 }
-                if (data.distance && data.speed === "auto") {
+                /*if (data.distance && data.speed === "auto") {
                     data.speed = data.distance / video.duration;
-                }
+                }*/
                 // Compute final position
                 const delta = video.duration * data.speed;
                 const deltaX = delta * Math.cos(data.rotation)
@@ -99,7 +88,7 @@ export class EffectsLayer extends PlaceablesLayer {
                 }
                 ];
                 let animationDuration = video.duration * 1000;
-                if (hasProperty(data, "animationDelay")) {
+                if (this.hasProperty(data, "animationDelay")) {
                     animationDuration -= Math.max(0, 1000 * (data.animationDelay.end + data.animationDelay.start));
                 }
                 const animate = function () {
@@ -107,10 +96,10 @@ export class EffectsLayer extends PlaceablesLayer {
                         name: `effects.video.${randomID()}.move`,
                         context: this,
                         duration: animationDuration,
-                        ease: (x) => { return x; }
+                        ease: easeFunctions[data.ease]
                     })
                 }
-                if (hasProperty(data, "animationDelay.start")) {
+                if (this.hasProperty(data, "animationDelay.start")) {
                     setTimeout(animate, data.animationDelay.start * 1000.0);
                 } else {
                     animate();
@@ -119,8 +108,8 @@ export class EffectsLayer extends PlaceablesLayer {
 
             video.onerror = () => {
                 this.removeChild(vidSprite);
+                console.error(`Could not play ${data.file}!`)
                 reject();
-                vidSprite.destroy();
             }
 
             video.onended = () => {
@@ -149,9 +138,9 @@ export class EffectsLayer extends PlaceablesLayer {
         effectData.distance = ray.distance;
         effectData.rotation = ray.angle;
         // And to other clients
-        game.socket.emit('module.effects', effectData);
+        game.socket.emit('module.effectsFramework', effectData);
         // Throw effect locally
-        return canvas.effects.playVideo(effectData);
+        return canvas.EffectsLayer.playEffect(effectData);
 
     }
 
