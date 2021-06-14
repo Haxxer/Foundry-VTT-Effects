@@ -32,6 +32,8 @@ export class EffectsLayer extends CanvasLayer {
             obj.sheetClass = NoteConfig
         }
 
+        debugger;
+
         return mergeFunc(super.layerOptions, obj);
     }
 

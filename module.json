@@ -26,6 +26,7 @@
     "/scripts/effects-layer.js",
     "/scripts/version.js"
   ],
+  "socket": true,
   "url": "This is auto replaced",
   "manifest": "https://raw.githubusercontent.com/Haxxer/FoundryVTT-Effects/master/module.json",
   "download": "This is auto replaced"
