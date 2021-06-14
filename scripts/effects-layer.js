@@ -27,12 +27,10 @@ export class EffectsLayer extends CanvasLayer {
 
         if(version){
             obj.name = "effectsframework"
-        }else{
+        }else {
             obj.objectClass = Note
             obj.sheetClass = NoteConfig
         }
-
-        debugger;
 
         return mergeFunc(super.layerOptions, obj);
     }
