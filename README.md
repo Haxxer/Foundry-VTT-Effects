@@ -2,6 +2,10 @@
 
 This module implements an API to interact with an effects layer on the Foundry canvas.
 
+## Credits
+
+Big thanks to U-Man over at [FXMaster](https://foundryvtt.com/packages/fxmaster/) for his work on implementing the core functionality used in this module! 
+
 ## How to use
 
 You can call `canvas.effectsframework.playEffect(data)` to play an effect locally, and you can replicate this to connected clients via `game.socket.emit("module.effectsframework", data)`
@@ -22,7 +26,7 @@ The data should be in this format:
 
 ## Download
 
-`https://github.com/Haxxer/Foundry-VTT-Effects/releases/latest/download/module.json` to refer to the manifest.
+`https://github.com/Haxxer/Foundry-VTT-EffectsFramework/releases/latest/download/module.json`
 
 ## Changelog
 
